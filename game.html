@@ -1,0 +1,147 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>game 1</title>
+    <style>
+        canvas {
+            border: 1px solid #6092e0;
+        }
+    </style>
+</head>
+
+<body>
+    <canvas id='id-canvas' width='400' height='300'></canvas>
+    <script>
+        let log = console.log.bind(console)
+
+        const imageFromPath = (path) => {
+            let img = new Image()
+            img.src = path
+            return img
+        }
+
+        // 球
+        const Ball = () => {
+            const image = imageFromPath('ball.png')
+            const o = {
+                image,
+                x: 100,
+                y: 200,
+                speedX: 10,
+                speedY: 10,
+                fired: false,
+                move: () => {
+                    if (o.fired) {
+                        if (o.x < 0 || o.x > 400) o.speedX *= -1
+                        if (o.y < 0 || o.y > 300) o.speedY *= -1
+                        o.x += o.speedX
+                        o.y += o.speedY
+                    }
+                },
+                fire: () => {
+                    o.fired = true
+                }
+            }
+            return o
+        }
+
+        // 挡板
+        const Paddle = () => {
+            const image = imageFromPath('paddle.png')
+            const o = {
+                image,
+                x: 100,
+                y: 200,
+                speed: 5,
+                moveLeft: () => o.x -= o.speed,
+                moveRight: () => o.x += o.speed,
+                collide: (ball) => {
+                    if (ball.y + ball.image.height > o.y && ball.x > o.x && ball.x < o.x + o.image.width) {
+                        return true
+                    } else {
+                        return false
+                    }
+                }
+            }
+            return o
+        }
+
+        const GuaGame = () => {
+            const g = {
+                actions: {},
+                keydowns: {}
+            }
+
+            g.canvas = document.querySelector('#id-canvas')
+            g.context = g.canvas.getContext('2d')
+
+            // draw
+            g.drawImage = (guaImage) => {
+                g.context.drawImage(guaImage.image, guaImage.x, guaImage.y)
+            }
+
+            // events
+            window.addEventListener('keydown', (e) => {
+                g.keydowns[e.keyCode] = true
+            })
+
+            window.addEventListener('keyup', (e) => {
+                g.keydowns[e.keyCode] = false
+            })
+
+            // 按钮注册事件
+            g.registerAction = (keyCode, callback) => {
+                g.actions[keyCode] = callback
+            }
+
+            // timer
+            setInterval(() => {
+                // events
+                const actions = Object.keys(g.actions)
+                for (let i = 0; i < actions.length; i++) {
+                    let keyCode = actions[i]
+                    if (g.keydowns[keyCode]) {
+                        // 如果按键被按下，调用注册的action
+                        g.actions[keyCode]()
+                    }
+                }
+                g.update()
+                // clear
+                g.context.clearRect(0, 0, g.canvas.width, g.canvas.height)
+                // draw
+                g.draw()
+            }, 1000 / 30)
+
+            return g
+        }
+
+        const __main = () => {
+            const game = GuaGame()
+            const paddle = Paddle()
+            const ball = Ball()
+
+            game.registerAction(65, () => paddle.moveLeft())
+
+            game.registerAction(68, () => paddle.moveRight())
+
+            game.registerAction(32, () => ball.fire())
+
+            game.update = () => {
+                ball.move()
+                // 判断相撞
+                if (paddle.collide(ball)) ball.speedY *= -1
+            }
+
+            game.draw = () => {
+                game.drawImage(paddle)
+                game.drawImage(ball)
+            }
+        }
+
+        __main()
+    </script>
+</body>
+
+</html>

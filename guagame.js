@@ -1,7 +1,10 @@
-const GuaGame = () => {
+const GuaGame = (images, runCallback) => {
+    // loads是一个对象，里面是图片的名字
+    // 图片会在所有图片载入成功后运行
     const g = {
         actions: {},
-        keydowns: {}
+        keydowns: {},
+        images: {},
     }
 
     g.canvas = document.querySelector('#id-canvas')
@@ -48,10 +51,39 @@ const GuaGame = () => {
         }, 1000 / window.fps)
     }
 
+    const loads = []
+
+    const names = Object.keys(images)
+    for (let i = 0, dio = names.length; i < dio; i++) {
+        const name = names[i]
+        let img = new Image()
+        img.src = images[name]
+        img.onload = () => {
+            // 所有图片载入成功，调用run
+            g.images[name] = img
+            loads.push(1)
+            if (loads.length === names.length) g.run()
+        }
+    }
+
+    g.imageByName = name => {
+        const img = g.images[name]
+        return {
+            w: img.width,
+            h: img.height,
+            image: img,
+        }
+    }
+
+    g.run = () => {
+        runCallback(g)
+        setTimeout(() => {
+            runLoop()
+        }, 1000 / window.fps)
+    }
+
     // timer
-    setTimeout(() => {
-        runLoop()
-    }, 1000 / window.fps)
+
 
     return g
 }

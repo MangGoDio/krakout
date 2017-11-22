@@ -1,4 +1,9 @@
-let log = console.log.bind(console)
+const e = sel => document.querySelector(sel)
+
+const log = s => {
+    //e('#id-text-log').value += `\n${s}`
+    console.log.bind(console)
+}
 
 const imageFromPath = (path) => {
     let img = new Image()

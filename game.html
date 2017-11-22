@@ -21,79 +21,11 @@
 
     <canvas id='id-canvas' width='400' height='300'></canvas>
     <hr />
-    <input type='range' id='id-input-speed' />
-    <script>
-        const loadLevel = n => {
-            let blocks = []
-            const level = levels[n - 1]
-            for (let i = 0, dio = level.length; i < dio; i++) {
-                // 设置block坐标
-                let b = Block(level[i])
-                blocks.push(b)
-            }
-            return blocks
-        }
-
-        let blocks = []
-
-        const enableDebugMode = enable => {
-            if (!enable) return
-            window.paused = false
-            window.addEventListener('keydown', (e) => {
-                const num = Number(e.key)
-                if (e.key === 'p') window.paused = !window.paused
-                if (typeof num === 'number' && num > 0) blocks = loadLevel(num)
-            })
-            // 控制速度
-            document.querySelector('#id-input-speed').addEventListener('input', (e) => {
-                window.fps = Number(e.target.value)
-            })
-        }
-
-        const __main = () => {
-            enableDebugMode(true)
-            const game = GuaGame()
-            const paddle = Paddle()
-            const ball = Ball()
-
-            blocks = loadLevel(1)
-
-            game.registerAction('a', () => paddle.moveLeft())
-
-            game.registerAction('d', () => paddle.moveRight())
-
-            game.registerAction('f', () => ball.fire())
-
-            game.update = () => {
-                if (window.paused) return
-                ball.move()
-                // 判断相撞
-                if (paddle.collide(ball)) {
-                    ball.反弹()
-                }
-                // 判断打击砖块
-                for (let i = 0, dio = blocks.length; i < dio; i++) {
-                    let block = blocks[i]
-                    if (block.collide(ball)) {
-                        block.kill()
-                        ball.反弹()
-                    }
-                }
-            }
-
-            game.draw = () => {
-                game.drawImage(paddle)
-                game.drawImage(ball)
-                // draw blocks
-                for (let i = 0, dio = blocks.length; i < dio; i++) {
-                    let block = blocks[i]
-                    if (block.alive) game.drawImage(block)
-                }
-            }
-        }
-
-        __main()
-    </script>
+    <input type='range' id='id-input-speed' value='1' />
+    <div>
+        <!-- <textarea id='id-text-log' rows='8' cols='40'></textarea> -->
+    </div>
+    <script src='main.js'></script>
 </body>
 
 </html>
